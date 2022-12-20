@@ -73,9 +73,18 @@
         <br /><br />
         <MudButton Variant="Variant.Filled"
                    @onclick="OnSubmitAsync"
+                   Disabled="@_processing" 
                    Color="Color.Primary">
-            Submit<br />
-        </MudButton>
+            @if (_processing)
+            {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                    <MudText Class="ms-2">Processing</MudText>
+            }
+            else
+            {
+                    <MudText>Submit</MudText>
+            }
+        </MudButton>  
     </MudItem>
     <MudItem xs="12" sm="7">
         <MudPaper>
@@ -86,6 +95,7 @@
 
 @code {
     private string response = "";
+    private bool _processing = false;
 
     private OpenAIRequest openAIRequest = new OpenAIRequest();
 
@@ -100,13 +110,23 @@
         try
         {
             response = "";
+            _processing = true;
+            await Task.Delay(100);
+
             if (!string.IsNullOrWhiteSpace(openAIRequest.Prompt))
             {
                 using (OpenAI openAI = new OpenAI(ApiKey, OrgId))
                 {
                     response = openAI.CallOpenAI(openAIRequest);
+                    openAIRequest.Prompt = "";
                 }
             }
+            else
+            {
+                response = "Please enter some prompt text.";
+            }
+
+            _processing = false;
         }
         catch (Exception)
         {
