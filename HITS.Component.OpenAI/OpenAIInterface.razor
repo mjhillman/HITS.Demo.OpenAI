@@ -2,7 +2,7 @@
 
 @using MudBlazor
 
-<MudText Typo="Typo.h5">Text Completion Endpoint Test Interface</MudText>
+<MudText Typo="Typo.h5">Text and Code Completion</MudText>
 <br />
 <MudGrid Justify="Justify.FlexStart">
     <MudItem xs="12" sm="7">
@@ -20,15 +20,27 @@
                       Lines="5"
                       @bind-Value="openAIRequest.Prompt" />
         <br />
-        <MudSelect @bind-Value="@openAIRequest.Model" 
-            Label="Model Choices" 
-            Variant="Variant.Outlined">
-            <MudSelectItem Value="@("text-davinci-003")">Davinci (default)</MudSelectItem>
-            <MudSelectItem Value="@("text-curie-001")">Curie</MudSelectItem>
-            <MudSelectItem Value="@("text-babbage-001")">Babbage</MudSelectItem>
-            <MudSelectItem Value="@("text-ada-001")">Ada</MudSelectItem>
-        </MudSelect>
-        <br />
+        <MudTooltip Placement="Placement.Right" Delay="2000">
+            <ChildContent>
+                <MudSelect @bind-Value="@openAIRequest.Model" 
+                    Label="Model Choices" 
+                    Variant="Variant.Outlined">
+                    <MudSelectItem Value="@("text-davinci-003")">Text:Davinci (default)</MudSelectItem>
+                    <MudSelectItem Value="@("text-curie-001")">Text:Curie</MudSelectItem>
+                    <MudSelectItem Value="@("text-babbage-001")">Text:Babbage</MudSelectItem>
+                    <MudSelectItem Value="@("text-ada-001")">Text:Ada</MudSelectItem>
+                    <MudSelectItem Value="@("code-davinci-002")">Code:Davinci</MudSelectItem>
+                    <MudSelectItem Value="@("code-cushman-001")">Code:Cushman</MudSelectItem>
+                </MudSelect>
+            </ChildContent>
+            <TooltipContent>
+                <MudText Typo="Typo.body1">
+                    Use the "text-" models for text completion. <br />
+                    Use the "code-" models for code completion. 
+                </MudText>
+            </TooltipContent>
+        </MudTooltip>
+        <br /><br />
         <MudSlider @bind-Value="@openAIRequest.MaxTokens"
                    Min="16"
                    Max="2048"
