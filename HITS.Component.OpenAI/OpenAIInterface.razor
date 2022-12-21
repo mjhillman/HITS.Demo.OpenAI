@@ -5,52 +5,57 @@
 <MudText Typo="Typo.h5">Text and Code Completion</MudText>
 <br />
 <MudGrid Justify="Justify.FlexStart">
-    <MudItem xs="12" sm="7">
-        <MudPaper>
+    @if (ShowWarning)
+    {
+        <MudItem xs="12" sm="7">
+            <MudPaper>
             <MudText Typo="Typo.body1">
                 While safeguards are in place, the system may occasionally generate incorrect or misleading information and produce offensive or biased content. It is not intended to give advice.
                 Please don't share any sensitive information in your conversations.<br />
             </MudText>
         </MudPaper>
     </MudItem>
+    }
     <MudItem xs="12" sm="7">
         <MudTextField Label="Submit a question."
                       Variant="Variant.Outlined"
                       Margin="Margin.Dense"
                       Lines="5"
                       @bind-Value="openAIRequest.Prompt" />
-        <br />
-        <MudTooltip Placement="Placement.Right" Delay="2000">
-            <ChildContent>
-                <MudSelect @bind-Value="@openAIRequest.Model" 
+        @if (ShowOptions)
+        {
+            <br />
+            <MudTooltip Placement="Placement.Right" Delay="2000">
+                <ChildContent>
+                    <MudSelect @bind-Value="@openAIRequest.Model" 
                     Label="Model Choices" 
                     Variant="Variant.Outlined">
-                    <MudSelectItem Value="@("text-davinci-003")">Text:Davinci (default)</MudSelectItem>
-                    <MudSelectItem Value="@("text-curie-001")">Text:Curie</MudSelectItem>
-                    <MudSelectItem Value="@("text-babbage-001")">Text:Babbage</MudSelectItem>
-                    <MudSelectItem Value="@("text-ada-001")">Text:Ada</MudSelectItem>
-                    <MudSelectItem Value="@("code-davinci-002")">Code:Davinci</MudSelectItem>
-                    <MudSelectItem Value="@("code-cushman-001")">Code:Cushman</MudSelectItem>
-                </MudSelect>
-            </ChildContent>
-            <TooltipContent>
-                <MudText Typo="Typo.body1">
-                    Use the "text-" models for text completion. <br />
-                    Use the "code-" models for code completion. 
-                </MudText>
-            </TooltipContent>
-        </MudTooltip>
-        <br /><br />
-        <MudSlider @bind-Value="@openAIRequest.MaxTokens"
+                        <MudSelectItem Value="@("text-davinci-003")">Text:Davinci (default)</MudSelectItem>
+                        <MudSelectItem Value="@("text-curie-001")">Text:Curie</MudSelectItem>
+                        <MudSelectItem Value="@("text-babbage-001")">Text:Babbage</MudSelectItem>
+                        <MudSelectItem Value="@("text-ada-001")">Text:Ada</MudSelectItem>
+                        <MudSelectItem Value="@("code-davinci-002")">Code:Davinci</MudSelectItem>
+                        <MudSelectItem Value="@("code-cushman-001")">Code:Cushman</MudSelectItem>
+                    </MudSelect>
+                </ChildContent>
+                <TooltipContent>
+                    <MudText Typo="Typo.body1">
+                        Use the "text-" models for text completion. <br />
+                        Use the "code-" models for code completion. 
+                    </MudText>
+                </TooltipContent>
+            </MudTooltip>
+            <br /><br />
+            <MudSlider @bind-Value="@openAIRequest.MaxTokens"
                    Min="16"
                    Max="2048"
                    Step="8"
                    Class="border-solid border-2 pa-4 rounded">
-            Max Tokens: @openAIRequest.MaxTokens.ToString()
-        </MudSlider>
-        <br /><br />
-        <MudTooltip Placement="Placement.Right" Delay="2000">
-            <ChildContent>
+                Max Tokens: @openAIRequest.MaxTokens.ToString()
+            </MudSlider>
+            <br /><br />
+            <MudTooltip Placement="Placement.Right" Delay="2000">
+                <ChildContent>
                 <MudSlider @bind-Value="@openAIRequest.Temperature"
                            Min="0.0"
                            Max="1.0"
@@ -70,7 +75,9 @@
                 </MudText>
             </TooltipContent>
         </MudTooltip>
-        <br /><br />
+        <br />
+        }   <!--end of show options-->
+        <br />
         <MudButton Variant="Variant.Filled"
                    @onclick="OnSubmitAsync"
                    Disabled="@_processing" 
@@ -88,13 +95,13 @@
     </MudItem>
     <MudItem xs="12" sm="7">
         <MudPaper>
-            <MudText Typo="Typo.body1">@response</MudText>
+            <MudText Typo="Typo.body1">@_response</MudText>
         </MudPaper>
     </MudItem>
 </MudGrid>
 
 @code {
-    private string response = "";
+    private string _response = "";
     private bool _processing = false;
 
     private OpenAIRequest openAIRequest = new OpenAIRequest();
@@ -105,11 +112,17 @@
     [Parameter]
     public string OrgId { get; set; }
 
+    [Parameter]
+    public bool ShowWarning { get; set; } = true;
+
+    [Parameter]
+    public bool ShowOptions { get; set; } = true;
+
     private async Task OnSubmitAsync()
     {
         try
         {
-            response = "";
+            _response = "";
             _processing = true;
             await Task.Delay(100);
 
@@ -117,13 +130,13 @@
             {
                 using (OpenAI openAI = new OpenAI(ApiKey, OrgId))
                 {
-                    response = openAI.CallOpenAI(openAIRequest);
+                    _response = openAI.CallOpenAI(openAIRequest);
                     openAIRequest.Prompt = "";
                 }
             }
             else
             {
-                response = "Please enter some prompt text.";
+                _response = "Please enter some prompt text.";
             }
 
             _processing = false;
