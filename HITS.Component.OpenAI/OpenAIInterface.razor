@@ -17,11 +17,12 @@
     </MudItem>
     }
     <MudItem xs="12" sm="7">
-        <MudTextField Label="Submit a question."
-                      Variant="Variant.Outlined"
-                      Margin="Margin.Dense"
-                      Lines="5"
-                      @bind-Value="openAIRequest.Prompt" />
+        <MudTextField T="string" 
+                        Label="Submit a question."
+                        Variant="Variant.Outlined"
+                        Margin="Margin.Dense"
+                        Lines="5"
+                        @bind-Value="openAIRequest.Prompt" />
         @if (ShowOptions)
         {
             <br />
@@ -103,7 +104,7 @@
 @code {
     private string _response = "";
     private bool _processing = false;
-
+ 
     private OpenAIRequest openAIRequest = new OpenAIRequest();
 
     [Parameter]
