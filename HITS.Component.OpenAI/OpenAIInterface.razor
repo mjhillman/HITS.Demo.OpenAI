@@ -1,6 +1,6 @@
 ﻿@page "/"
-
 @using MudBlazor
+@using Microsoft.AspNetCore.Components.Web
 
 <MudText Typo="Typo.h5">Text and Code Completion</MudText>
 <br />
@@ -22,13 +22,13 @@
                         Variant="Variant.Outlined"
                         Margin="Margin.Dense"
                         Lines="5"
-                        @bind-Value="openAIRequest.Prompt" />
+                        @bind-Value="@_openAIRequest.Prompt" />
         @if (ShowOptions)
         {
             <br />
             <MudTooltip Placement="Placement.Right" Delay="2000">
                 <ChildContent>
-                    <MudSelect @bind-Value="@openAIRequest.Model" 
+                    <MudSelect @bind-Value="@_openAIRequest.Model" 
                     Label="Model Choices" 
                     Variant="Variant.Outlined">
                         <MudSelectItem Value="@("text-davinci-003")">Text:Davinci (default)</MudSelectItem>
@@ -47,22 +47,22 @@
                 </TooltipContent>
             </MudTooltip>
             <br /><br />
-            <MudSlider @bind-Value="@openAIRequest.MaxTokens"
+            <MudSlider @bind-Value="@_openAIRequest.MaxTokens"
                    Min="16"
                    Max="2048"
                    Step="8"
                    Class="border-solid border-2 pa-4 rounded">
-                Max Tokens: @openAIRequest.MaxTokens.ToString()
+                Max Tokens: @_openAIRequest.MaxTokens.ToString()
             </MudSlider>
             <br /><br />
             <MudTooltip Placement="Placement.Right" Delay="2000">
                 <ChildContent>
-                <MudSlider @bind-Value="@openAIRequest.Temperature"
+                <MudSlider @bind-Value="@_openAIRequest.Temperature"
                            Min="0.0"
                            Max="1.0"
                            Step="0.1"
                            Class="border-solid border-2 pa-4 rounded">
-                    Temperature: @openAIRequest.Temperature.ToString()
+                    Temperature: @_openAIRequest.Temperature.ToString()
                 </MudSlider>
             </ChildContent>
             <TooltipContent>
@@ -80,7 +80,7 @@
         }   <!--end of show options-->
         <br />
         <MudButton Variant="Variant.Filled"
-                   @onclick="OnSubmitAsync"
+                   @onclick="@OnSubmitAsync"
                    Disabled="@_processing" 
                    Color="Color.Primary">
             @if (_processing)
@@ -100,59 +100,3 @@
         </MudPaper>
     </MudItem>
 </MudGrid>
-
-@code {
-    private string _response = "";
-    private bool _processing = false;
- 
-    private OpenAIRequest openAIRequest = new OpenAIRequest();
-
-    [Parameter]
-    public string ApiKey { get; set; }
-
-    [Parameter]
-    public string OrgId { get; set; }
-
-    [Parameter]
-    public bool ShowWarning { get; set; } = true;
-
-    [Parameter]
-    public bool ShowOptions { get; set; } = true;
-
-    private async Task OnSubmitAsync()
-    {
-        try
-        {
-            _response = "";
-            _processing = true;
-            await Task.Delay(100);
-
-            if (!string.IsNullOrWhiteSpace(openAIRequest.Prompt))
-            {
-                using (OpenAI openAI = new OpenAI(ApiKey, OrgId))
-                {
-                    _response = openAI.CallOpenAI(openAIRequest);
-                    openAIRequest.Prompt = "";
-                }
-            }
-            else
-            {
-                _response = "Please enter some prompt text.";
-            }
-
-            _processing = false;
-        }
-        catch (Exception)
-        {
-            throw;
-        }
-    }
-
-    protected override void OnInitialized()
-    {
-        openAIRequest.Prompt = "Who was Thomas Paine?";
-        openAIRequest.Temperature = 0;
-        openAIRequest.Model = "text-davinci-003";
-        openAIRequest.MaxTokens = 256;
-    }
-}
