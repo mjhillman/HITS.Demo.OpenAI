@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using System.ComponentModel;
-using System.Net.NetworkInformation;
 
 namespace HITS.Component.OpenAI
 {
@@ -43,7 +41,7 @@ namespace HITS.Component.OpenAI
                 {
                     using (OpenAI openAI = new OpenAI(ApiKey, OrgId))
                     {
-                        _response = openAI.CallOpenAI(_openAIRequest);
+                        _response = await openAI.CallOpenAIAsync(_openAIRequest);
                         _openAIRequest.Prompt = "";
                     }
                 }

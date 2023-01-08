@@ -1,55 +1,57 @@
-﻿using System.Data;
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Text.Json;
 
 namespace HITS.Component.OpenAI
 {
     public class OpenAI : IDisposable
     {
-        public string ApiKey { get; set; }
-        public string OrgId { get; set; }
-
         private readonly HttpClient _httpClient;
-        private Uri _uri = new Uri("https://api.openai.com/v1/completions");
 
         public OpenAI(string apiKey, string orgId)
         {
-            ApiKey = apiKey;
-            OrgId = orgId;
-
             _httpClient = new HttpClient();
-            _httpClient.BaseAddress = _uri;
-            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {ApiKey}");
-            _httpClient.DefaultRequestHeaders.Add("OpenAI-Organization", OrgId);
+            _httpClient.BaseAddress = new Uri("https://api.openai.com/v1/completions");
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+            _httpClient.DefaultRequestHeaders.Add("OpenAI-Organization", orgId);
+            _httpClient.Timeout = TimeSpan.FromMinutes(1);
         }
 
-        public string CallOpenAI(OpenAIRequest openAIRequest)
+        public async Task<string> CallOpenAIAsync(OpenAIRequest openAIRequest)
         {
+            OpenAIResponse? openAIResponse = null;
+
             try
             {
                 using (var request = new HttpRequestMessage(new HttpMethod("POST"), _httpClient.BaseAddress))
                 {
-                   
                     request.Content = new StringContent(JsonSerializer.Serialize(openAIRequest));
-
-                    //Add content type
                     request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
 
                     var responseMessage = _httpClient.SendAsync(request).Result;
 
                     //Serialize HTTP response to string
-                    string response =  responseMessage.Content.ReadAsStringAsync().Result;
+                    string response = await responseMessage.Content.ReadAsStringAsync();
 
-                    OpenAIResponse openAIResponse = JsonSerializer.Deserialize<OpenAIResponse>(response);
+                    if (response == null) return "There was no response for the request.";
 
-                    if (openAIResponse.Choices == null) return "Check your API Key and Organization ID";
+                    openAIResponse = JsonSerializer.Deserialize<OpenAIResponse>(response);
 
-                    return openAIResponse.Choices[0].Text;
+                    if (openAIResponse?.Choices?.Length > 0) return openAIResponse.Choices[0].Text;
                 }
+
+                return "Please check your API Key and Organization ID";
             }
-            catch (Exception)
+            catch (TaskCanceledException tce)
             {
-                throw;
+                return $"{tce.Message}";
+            }
+            catch (Exception e)
+            {
+                return $"{e.Message}";
+            }
+            finally
+            {
+                openAIResponse = null;
             }
         }
 
