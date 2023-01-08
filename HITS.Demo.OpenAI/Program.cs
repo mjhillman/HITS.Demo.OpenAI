@@ -1,6 +1,4 @@
-using Microsoft.Extensions.Configuration;
 using MudBlazor.Services;
-using HITS.Demo.OpenAI;
 
 var builder = WebApplication.CreateBuilder(args);
 
