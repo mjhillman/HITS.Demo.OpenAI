@@ -7,19 +7,9 @@
 <MudSnackbarProvider />
 
 <MudLayout>
-@*    <MudThemeManagerButton OnClick="@((e) => OpenThemeManager(true))" />
-*@    <MudThemeManager Open="_themeManagerOpen" OpenChanged="OpenThemeManager" Theme="_themeManager" ThemeChanged="UpdateTheme" />
     <MudAppBar>
-@*        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-*@        
         <MudText Typo="Typo.h4">OpenAI Test Interface</MudText>
     </MudAppBar>
-@*    <MudDrawer @bind-Open="_drawerOpen" ClipMode="_themeManager.DrawerClipMode" Elevation="_themeManager.DrawerElevation">
-        <MudNavMenu>
-            <MudNavLink Href="/" Match="NavLinkMatch.All">Home</MudNavLink>
-        </MudNavMenu>
-    </MudDrawer>
-    *@    
     <MudMainContent>
         <MudContainer MaxWidth="MaxWidth.Medium" >
             @Body
@@ -29,27 +19,4 @@
 
 @code {
     private ThemeManagerTheme _themeManager = new ThemeManagerTheme();
-    public bool _themeManagerOpen = false;
-    bool _drawerOpen = true;
-
-    protected override void OnInitialized()
-    {
-        StateHasChanged();
-    }
-
-    void OpenThemeManager(bool value)
-    {
-        _themeManagerOpen = value;
-    }
-
-    void UpdateTheme(ThemeManagerTheme value)
-    {
-        _themeManager = value;
-        StateHasChanged();
-    }
-
-    void DrawerToggle()
-    {
-        _drawerOpen = !_drawerOpen;
-    }
 }
